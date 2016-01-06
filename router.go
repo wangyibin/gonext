@@ -3,6 +3,7 @@ package apidoc
 import (
 	"fmt"
 	"reflect"
+	"runtime"
 	"strings"
 
 	"github.com/labstack/echo"
@@ -22,6 +23,7 @@ type Resource struct {
 	pathParams  []Param
 	queryParams []Param
 	requestBody reflect.Type
+	operationID string
 }
 
 // Param struct
@@ -53,7 +55,7 @@ func (r *Router) Post(path string, h interface{}) {
 }
 
 func (r *Router) mountToAPIDocs(method string, path string, h interface{}) *Resource {
-	resource := &Resource{method: method, path: path}
+	resource := &Resource{method: method, path: path, operationID: runtime.FuncForPC(reflect.ValueOf(h).Pointer()).Name()}
 
 	handlerType := reflect.TypeOf(h)
 	requestType := handlerType.In(0)
@@ -180,10 +182,19 @@ func (r *Resource) toJSON() map[string]interface{} {
 		})
 	}
 	return map[string]interface{}{
-		r.method: map[string]interface{}{
+		strings.ToLower(r.method): map[string]interface{}{
+			"tags":        []string{"pet"},
+			"summary":     "Add a new pet to the store",
 			"description": r.description,
 			"produces":    []string{"application/json"},
+			"consumes":    []string{"application/json"},
+			"operationId": r.operationID,
 			"parameters":  parameters,
+			"response": map[string]interface{}{
+				"405": map[string]interface{}{
+					"description": "Invalid input",
+				},
+			},
 		},
 	}
 }

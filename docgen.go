@@ -10,10 +10,18 @@ import (
 func propertiesOfEntity(bodyType reflect.Type) map[string]interface{} {
 	properties := make(map[string]interface{})
 	for i := 0; i < bodyType.NumField(); i++ {
-		typeField := bodyType.Field(i)
+		field := bodyType.Field(i)
+		propertyName := lowCamelStr(field.Name)
+		fieldType := field.Type.String()
+		required := true
+		if field.Type.Kind() == reflect.Ptr {
+			required = false
+			fieldType = field.Type.Elem().String()
+		}
 
-		properties[typeField.Name] = map[string]interface{}{
-			"type": typeField.Type.String(),
+		properties[propertyName] = map[string]interface{}{
+			"type":     fieldType,
+			"required": required,
 		}
 	}
 	return properties
@@ -33,6 +41,9 @@ func getdoc(router *Router) echo.HandlerFunc {
 			}
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{
+			"basePath": "/api",
+			"host":     "localhost:3000",
+			"swagger":  "2.0",
 			"info": map[string]interface{}{
 				"title":          "Swagger Sample App",
 				"description":    "This is a sample server Petstore server.",
@@ -50,6 +61,12 @@ func getdoc(router *Router) echo.HandlerFunc {
 			},
 			"paths":       paths,
 			"definitions": definitions,
+			"tags": []map[string]string{
+				map[string]string{
+					"name":        "pet",
+					"description": "Everything about your Pets",
+				},
+			},
 		})
 	}
 
