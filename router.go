@@ -3,7 +3,6 @@ package apidoc
 import (
 	"fmt"
 	"reflect"
-	"runtime"
 	"strings"
 
 	"github.com/labstack/echo"
@@ -13,6 +12,14 @@ import (
 type Router struct {
 	e         *echo.Echo
 	resources []*Resource
+}
+
+// Group struct
+type Group struct {
+	tag         string
+	description string
+	prefix      string
+	echoGroup   *echo.Group
 }
 
 // Resource struct
@@ -26,15 +33,16 @@ type Resource struct {
 	operationID string
 }
 
-// Param struct
-type Param struct {
-	Name     string
-	Type     string
-	Required bool
-}
-
-func (p *Param) String() string {
-	return fmt.Sprintf("name[%s] type:%s, required:%t\n", p.Name, p.Type, p.Required)
+// HandlerDef struct
+type HandlerDef struct {
+	method      string
+	path        string
+	h1          interface{}
+	h2          interface{}
+	h3          interface{}
+	summary     string
+	description string
+	group       *Group
 }
 
 // NewRouter func
@@ -44,51 +52,75 @@ func NewRouter(e *echo.Echo) *Router {
 	return r
 }
 
+// Group func
+func (r *Router) Group(tag string, description string, prefix string, m ...echo.Middleware) *Group {
+	return &Group{tag: tag, description: description, prefix: prefix, echoGroup: r.e.Group(prefix, m...)}
+}
+
 // Get func
-func (r *Router) Get(path string, h interface{}) {
-	r.mountToAPIDocs("GET", path, h).mountToRouter(r.e, h)
+func (g *Group) Get(path string) *HandlerDef {
+	return &HandlerDef{method: "GET", path: path, group: g}
 }
 
 // Post func
-func (r *Router) Post(path string, h interface{}) {
-	r.mountToAPIDocs("POST", path, h).mountToRouter(r.e, h)
+func (g *Group) Post(path string) *HandlerDef {
+	return &HandlerDef{method: "POST", path: path, group: g}
 }
 
-func (r *Router) mountToAPIDocs(method string, path string, h interface{}) *Resource {
-	resource := &Resource{method: method, path: path, operationID: runtime.FuncForPC(reflect.ValueOf(h).Pointer()).Name()}
-
-	handlerType := reflect.TypeOf(h)
-	requestType := handlerType.In(0)
-	if requestType.Kind() == reflect.Ptr {
-		requestType = requestType.Elem()
+// AddHandler func
+func (hdef *HandlerDef) AddHandler(handler interface{}) *HandlerDef {
+	if hdef.h1 == nil {
+		hdef.h1 = handler
+	} else if hdef.h2 == nil {
+		hdef.h2 = handler
+	} else if hdef.h3 == nil {
+		hdef.h3 = handler
+	} else {
+		panic("Only can support 3 handler at most")
 	}
+	return hdef
+}
 
-	pnames := pathNames(path)
-	fmt.Printf("%s %s\n\trequest type %v\n", method, path, requestType)
-	for i := 0; i < requestType.NumField(); i++ {
-		typeField := requestType.Field(i)
-
-		if strings.ToUpper(typeField.Name) != "BODY" {
-			param := Param{Name: typeField.Name, Type: typeField.Type.String(), Required: typeField.Type.Kind() != reflect.Ptr}
-			if containsIgnoreCase(pnames, typeField.Name) {
-				resource.pathParams = append(resource.queryParams, param)
-				fmt.Printf("\tPath Params %s", param.String())
-			} else {
-				resource.queryParams = append(resource.queryParams, param)
-				fmt.Printf("\tQuery Params %s", param.String())
-			}
-		} else {
-			if typeField.Type.Kind() == reflect.Ptr {
-				resource.requestBody = typeField.Type.Elem()
-			} else {
-				resource.requestBody = typeField.Type
-			}
-			fmt.Printf("\tRequestBody[%s]\n", resource.requestBody)
-		}
-	}
-
-	r.resources = append(r.resources, resource)
-	return resource
+// Mount func
+func (hdef *HandlerDef) Mount() {
+	g := hdef.group
+	SwaggerTags[g.tag] = g.description
+	MountSwaggerPath(&SwaggerPathDefine{Tag: g.tag, Method: hdef.method,
+		Path: g.prefix + hdef.path, Handler1: hdef.h1, Handler2: hdef.h2, Handler3: hdef.h3})
+	// resource := &Resource{method: method, path: path, operationID: runtime.FuncForPC(reflect.ValueOf(h).Pointer()).Name()}
+	//
+	// handlerType := reflect.TypeOf(h)
+	// requestType := handlerType.In(0)
+	// if requestType.Kind() == reflect.Ptr {
+	// 	requestType = requestType.Elem()
+	// }
+	//
+	// pnames := PathNames(path)
+	// fmt.Printf("%s %s\n\trequest type %v\n", method, path, requestType)
+	// for i := 0; i < requestType.NumField(); i++ {
+	// 	typeField := requestType.Field(i)
+	//
+	// 	if strings.ToUpper(typeField.Name) != "BODY" {
+	// 		param := Param{Name: typeField.Name, Type: typeField.Type, Required: typeField.Type.Kind() != reflect.Ptr}
+	// 		if containsIgnoreCase(pnames, typeField.Name) {
+	// 			resource.pathParams = append(resource.queryParams, param)
+	// 			fmt.Printf("\tPath Params %s", param.String())
+	// 		} else {
+	// 			resource.queryParams = append(resource.queryParams, param)
+	// 			fmt.Printf("\tQuery Params %s", param.String())
+	// 		}
+	// 	} else {
+	// 		if typeField.Type.Kind() == reflect.Ptr {
+	// 			resource.requestBody = typeField.Type.Elem()
+	// 		} else {
+	// 			resource.requestBody = typeField.Type
+	// 		}
+	// 		fmt.Printf("\tRequestBody[%s]\n", resource.requestBody)
+	// 	}
+	// }
+	//
+	// r.resources = append(r.resources, resource)
+	// return resource
 }
 
 func containsIgnoreCase(s []string, e string) bool {
@@ -140,7 +172,8 @@ func setValue(field reflect.Value, name string, value string) error {
 	return err
 }
 
-func pathNames(path string) []string {
+// PathNames func
+func PathNames(path string) []string {
 	pnames := []string{} // Param names
 	for i, l := 0, len(path); i < l; i++ {
 		if path[i] == ':' {
