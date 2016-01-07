@@ -46,7 +46,7 @@ func BuildEchoHandler(fullRequestPath string, h1 interface{}, h2 interface{}, h3
 		if len(out) > 1 {
 			return fmt.Errorf("return more then one data value is not supported: %s", runtime.FuncForPC(reflect.ValueOf(lastHandler).Pointer()).Name())
 		} else if len(out) == 0 {
-			return nil
+			return c.NoContent(http.StatusOK)
 		} else {
 			return c.JSON(http.StatusOK, out[0].Interface())
 		}

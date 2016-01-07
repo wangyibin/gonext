@@ -40,6 +40,9 @@ func (p *Param) ToSwaggerJSON(position string) map[string]interface{} {
 
 // BuildRequestParam func
 func BuildRequestParam(path string, inType reflect.Type) *RequestParam {
+	if inType == nil {
+		return &RequestParam{}
+	}
 	requestType := inType
 	if requestType.Kind() == reflect.Ptr {
 		requestType = requestType.Elem()
