@@ -59,6 +59,16 @@ func (g *Group) Post(path string) *HandlerDef {
 	return &HandlerDef{method: "POST", path: path, group: g}
 }
 
+// Put func
+func (g *Group) Put(path string) *HandlerDef {
+	return &HandlerDef{method: "PUT", path: path, group: g}
+}
+
+// Delete func
+func (g *Group) Delete(path string) *HandlerDef {
+	return &HandlerDef{method: "DELETE", path: path, group: g}
+}
+
 // AddHandler func
 func (hdef *HandlerDef) AddHandler(handler interface{}) *HandlerDef {
 	if hdef.h1 == nil {
@@ -87,6 +97,10 @@ func (hdef *HandlerDef) Mount() {
 		g.echoGroup.Get(hdef.path, echoHandler)
 	case "POST":
 		g.echoGroup.Post(hdef.path, echoHandler)
+	case "PUT":
+		g.echoGroup.Put(hdef.path, echoHandler)
+	case "DELETE":
+		g.echoGroup.Delete(hdef.path, echoHandler)
 	}
 }
 
