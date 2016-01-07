@@ -29,7 +29,7 @@ func (p *Param) String() string {
 func (p *Param) ToSwaggerJSON(position string) map[string]interface{} {
 	typ, format := GoTypeToSwaggerType(p.Type)
 	return map[string]interface{}{
-		"name":        p.Name,
+		"name":        lowCamelStr(p.Name),
 		"in":          position,
 		"format":      format,
 		"required":    p.Required,
@@ -54,6 +54,9 @@ func BuildRequestParam(path string, inType reflect.Type) *RequestParam {
 
 		if strings.ToUpper(typeField.Name) != "BODY" {
 			param := Param{Name: typeField.Name, Type: typeField.Type, Required: typeField.Type.Kind() != reflect.Ptr}
+			if !param.Required {
+				param.Type = param.Type.Elem()
+			}
 			if containsIgnoreCase(pnames, typeField.Name) {
 				pathParams = append(pathParams, param)
 				fmt.Printf("\tPath Params %s", param.String())
