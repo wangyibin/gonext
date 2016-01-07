@@ -121,6 +121,8 @@ func propertiesOfEntity(bodyType reflect.Type) map[string]interface{} {
 		}
 		typ, format := GoTypeToSwaggerType(fieldType)
 
+		description := field.Tag.Get("desc")
+
 		switch typ {
 		case "array":
 			prefix := "type"
@@ -128,19 +130,22 @@ func propertiesOfEntity(bodyType reflect.Type) map[string]interface{} {
 				prefix = "$ref"
 			}
 			properties[propertyName] = map[string]interface{}{
-				"type": "array",
+				"type":        "array",
+				"description": description,
 				"items": map[string]interface{}{
 					prefix: format,
 				},
 			}
 		case "object":
 			properties[propertyName] = map[string]interface{}{
-				"$ref": format,
+				"description": description,
+				"$ref":        format,
 			}
 		default:
 			properties[propertyName] = map[string]interface{}{
-				"type":   typ,
-				"format": format,
+				"description": description,
+				"type":        typ,
+				"format":      format,
 			}
 		}
 	}
