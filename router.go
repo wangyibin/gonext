@@ -83,12 +83,25 @@ func (hdef *HandlerDef) AddHandler(handler interface{}) *HandlerDef {
 	return hdef
 }
 
+// Summary func
+func (hdef *HandlerDef) Summary(summary string) *HandlerDef {
+	hdef.summary = summary
+	return hdef
+}
+
+// Description func
+func (hdef *HandlerDef) Description(description string) *HandlerDef {
+	hdef.description = description
+	return hdef
+}
+
 // Mount func
 func (hdef *HandlerDef) Mount() {
 	g := hdef.group
 	SwaggerTags[g.tag] = g.description
 	fullPath := g.prefix + hdef.path
 	MountSwaggerPath(&SwaggerPathDefine{Tag: g.tag, Method: hdef.method,
+		Summary: hdef.summary, Description: hdef.description,
 		Path: fullPath, Handler1: hdef.h1, Handler2: hdef.h2, Handler3: hdef.h3})
 
 	echoHandler := BuildEchoHandler(fullPath, hdef.h1, hdef.h2, hdef.h3)
@@ -134,5 +147,10 @@ func PathNames(path string) []string {
 }
 
 func lowCamelStr(str string) string {
+	for _, word := range []string{"ID", "URL", "URI"} {
+		if word == str {
+			return strings.ToLower(str)
+		}
+	}
 	return strings.ToLower(string(str[0])) + string(str[1:])
 }
