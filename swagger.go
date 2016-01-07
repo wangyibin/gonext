@@ -68,9 +68,7 @@ func BuildSwaggerPath(pathDefine *SwaggerPathDefine) (*SwaggerPath, error) {
 	if outType != nil {
 		successResponse = map[string]interface{}{
 			"description": "successful operation",
-			"schema": map[string]string{
-				"$ref": "#/definitions/" + outType.Name(),
-			},
+			"schema":      SwaggerEntitySchemaRef(outType),
 		}
 	}
 	json := map[string]interface{}{
@@ -82,7 +80,7 @@ func BuildSwaggerPath(pathDefine *SwaggerPathDefine) (*SwaggerPath, error) {
 			"consumes":    []string{"application/json"},
 			"operationId": operationID,
 			"parameters":  BuildRequestParam(pathDefine.Path, inType).ToSwaggerJSON(),
-			"response": map[string]interface{}{
+			"responses": map[string]interface{}{
 				"200": successResponse,
 				"500": map[string]interface{}{
 					"description": "Interal Server Error",
@@ -159,6 +157,12 @@ func MountSwaggerDefinition(typ reflect.Type) {
 	if entityType.Kind() == reflect.Ptr {
 		entityType = entityType.Elem()
 	}
+	if entityType.Kind() == reflect.Map {
+		return
+	}
+	if entityType.Kind() != reflect.Struct {
+		return
+	}
 	if _, ok := SwaggerDefinitions[entityType.Name()]; !ok {
 		SwaggerDefinitions[entityType.Name()] = propertiesOfEntity(entityType)
 		for i := 0; i < entityType.NumField(); i++ {
@@ -166,6 +170,38 @@ func MountSwaggerDefinition(typ reflect.Type) {
 			if field.Type.Kind() == reflect.Struct {
 				MountSwaggerDefinition(field.Type)
 			}
+		}
+	}
+}
+
+// SwaggerEntitySchemaRef used in parameter object and response object
+func SwaggerEntitySchemaRef(inType reflect.Type) map[string]interface{} {
+	entityType := inType
+	if entityType.Kind() == reflect.Ptr {
+		entityType = entityType.Elem()
+	}
+	typ, format := GoTypeToSwaggerType(entityType)
+
+	switch typ {
+	case "array":
+		prefix := "type"
+		if format[0] == '#' {
+			prefix = "$ref"
+		}
+		return map[string]interface{}{
+			"type": "array",
+			"items": map[string]interface{}{
+				prefix: format,
+			},
+		}
+	case "object":
+		return map[string]interface{}{
+			"$ref": format,
+		}
+	default:
+		return map[string]interface{}{
+			"type":   typ,
+			"format": format,
 		}
 	}
 }

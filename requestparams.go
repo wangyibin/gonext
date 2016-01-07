@@ -90,9 +90,10 @@ func (req *RequestParam) ToSwaggerJSON() []map[string]interface{} {
 			"in":       "body",
 			"name":     "body",
 			"required": true,
-			"schema": map[string]string{
-				"$ref": "#/definitions/" + req.RequestBody.Name(),
-			},
+			"schema":   SwaggerEntitySchemaRef(req.RequestBody),
+			// map[string]string{
+			// 	"$ref": "#/definitions/" + req.RequestBody.Name(),
+			// },
 		})
 	}
 	return parameters

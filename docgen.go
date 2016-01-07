@@ -9,18 +9,6 @@ import (
 func getdoc(router *Router) echo.HandlerFunc {
 
 	return func(c *echo.Context) error {
-		paths := make(map[string]interface{})
-		definitions := make(map[string]interface{})
-		for _, resource := range router.resources {
-			paths[resource.path] = resource.toJSON()
-			if resource.requestBody != nil {
-				definitions[resource.requestBody.Name()] = map[string]interface{}{
-					"type":       "object",
-					"properties": propertiesOfEntity(resource.requestBody),
-				}
-			}
-		}
-
 		var tags []map[string]string
 		for tag, desc := range SwaggerTags {
 			tags = append(tags, map[string]string{
@@ -29,7 +17,7 @@ func getdoc(router *Router) echo.HandlerFunc {
 			})
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{
-			"basePath": "/api",
+			"basePath": "/",
 			"host":     "localhost:3000",
 			"swagger":  "2.0",
 			"info": map[string]interface{}{
