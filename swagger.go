@@ -1,6 +1,7 @@
 package apidoc
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 )
@@ -34,6 +35,7 @@ type SwaggerPathDefine struct {
 
 // MountSwaggerPath func
 func MountSwaggerPath(pathDefine *SwaggerPathDefine) error {
+	fmt.Printf("%s  %s\n", pathDefine.Method, pathDefine.Path)
 	newPath, err := BuildSwaggerPath(pathDefine)
 	if err != nil {
 		return err
@@ -165,10 +167,12 @@ func MountSwaggerDefinition(typ reflect.Type) {
 	if entityType.Kind() == reflect.Map {
 		return
 	}
-	if entityType.Kind() != reflect.Struct {
+
+	if entityType.Kind() == reflect.Array || entityType.Kind() == reflect.Slice {
+		MountSwaggerDefinition(entityType.Elem())
 		return
 	}
-	if _, ok := SwaggerDefinitions[entityType.Name()]; !ok {
+	if _, ok := SwaggerDefinitions[entityType.Name()]; !ok && entityType.Kind() == reflect.Struct {
 		SwaggerDefinitions[entityType.Name()] = propertiesOfEntity(entityType)
 		for i := 0; i < entityType.NumField(); i++ {
 			field := entityType.Field(i)

@@ -51,7 +51,7 @@ func BuildRequestParam(path string, inType reflect.Type) *RequestParam {
 	var pathParams []Param
 	var queryParams []Param
 	var requestBody reflect.Type
-	fmt.Printf("%s\n\trequest type %v\n", path, requestType)
+	// fmt.Printf("%s\n\trequest type %v\n", path, requestType)
 	for i := 0; i < requestType.NumField(); i++ {
 		typeField := requestType.Field(i)
 
