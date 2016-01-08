@@ -1,6 +1,7 @@
 package apidoc
 
 import (
+	"reflect"
 	"strings"
 
 	"github.com/labstack/echo"
@@ -18,16 +19,6 @@ type Group struct {
 	description string
 	prefix      string
 	echoGroup   *echo.Group
-}
-
-// HandlerDef struct
-type HandlerDef struct {
-	method      string
-	path        string
-	handlers    []interface{}
-	summary     string
-	description string
-	group       *Group
 }
 
 // NewRouter func
@@ -48,77 +39,76 @@ func (g *Group) Group(tag string, description string, prefix string, m ...echo.M
 }
 
 // Get func
-func (g *Group) Get(path string) *HandlerDef {
-	return &HandlerDef{method: "GET", path: path, group: g}
+func (g *Group) Get(path string, actions ...interface{}) {
+	mount("GET", g, path, actions)
 }
 
 // Post func
-func (g *Group) Post(path string) *HandlerDef {
-	return &HandlerDef{method: "POST", path: path, group: g}
+func (g *Group) Post(path string, actions ...interface{}) {
+	mount("POST", g, path, actions)
 }
 
 // Put func
-func (g *Group) Put(path string) *HandlerDef {
-	return &HandlerDef{method: "PUT", path: path, group: g}
+func (g *Group) Put(path string, actions ...interface{}) {
+	mount("PUT", g, path, actions)
 }
 
 // Delete func
-func (g *Group) Delete(path string) *HandlerDef {
-	return &HandlerDef{method: "DELETE", path: path, group: g}
-}
-
-// AddHandler func
-// func (hdef *HandlerDef) AddHandler(handler interface{}) *HandlerDef {
-// 	if hdef.h1 == nil {
-// 		hdef.h1 = handler
-// 	} else if hdef.h2 == nil {
-// 		hdef.h2 = handler
-// 	} else if hdef.h3 == nil {
-// 		hdef.h3 = handler
-// 	} else {
-// 		panic("Only can support 3 handler at most")
-// 	}
-// 	return hdef
-// }
-
-// AddHandlers func
-func (hdef *HandlerDef) AddHandlers(handlers ...interface{}) *HandlerDef {
-	hdef.handlers = handlers
-	return hdef
-}
-
-// Summary func
-func (hdef *HandlerDef) Summary(summary string) *HandlerDef {
-	hdef.summary = summary
-	return hdef
-}
-
-// Description func
-func (hdef *HandlerDef) Description(description string) *HandlerDef {
-	hdef.description = description
-	return hdef
+func (g *Group) Delete(path string, actions ...interface{}) {
+	mount("DELETE", g, path, actions)
 }
 
 // Mount func
-func (hdef *HandlerDef) Mount() {
-	g := hdef.group
-	SwaggerTags[g.tag] = g.description
-	fullPath := g.prefix + hdef.path
-	MountSwaggerPath(&SwaggerPathDefine{Tag: g.tag, Method: hdef.method, Path: fullPath,
-		Summary: hdef.summary, Description: hdef.description, Handlers: hdef.handlers})
+func mount(method string, g *Group, path string, actions []interface{}) {
+	var summary, description string
+	var handlers []interface{}
+	for _, a := range actions {
+		if reflect.TypeOf(a).Kind() == reflect.String {
+			if len(summary) == 0 {
+				summary = a.(string)
+			} else {
+				description = a.(string)
+			}
+		} else {
+			handlers = append(handlers, a)
+		}
+	}
 
-	echoHandler := BuildEchoHandler(fullPath, hdef.handlers)
-	switch strings.ToUpper(hdef.method) {
+	SwaggerTags[g.tag] = g.description
+	fullPath := g.prefix + path
+	MountSwaggerPath(&SwaggerPathDefine{Tag: g.tag, Method: method, Path: fullPath,
+		Summary: summary, Description: description, Handlers: handlers})
+
+	echoHandler := BuildEchoHandler(fullPath, handlers)
+	switch strings.ToUpper(method) {
 	case "GET":
-		g.echoGroup.Get(hdef.path, echoHandler)
+		g.echoGroup.Get(path, echoHandler)
 	case "POST":
-		g.echoGroup.Post(hdef.path, echoHandler)
+		g.echoGroup.Post(path, echoHandler)
 	case "PUT":
-		g.echoGroup.Put(hdef.path, echoHandler)
+		g.echoGroup.Put(path, echoHandler)
 	case "DELETE":
-		g.echoGroup.Delete(hdef.path, echoHandler)
+		g.echoGroup.Delete(path, echoHandler)
 	}
 }
+
+// // AddHandlers func
+// func (hdef *HandlerDef) AddHandlers(handlers ...interface{}) *HandlerDef {
+// 	hdef.handlers = handlers
+// 	return hdef
+// }
+//
+// // Summary func
+// func (hdef *HandlerDef) Summary(summary string) *HandlerDef {
+// 	hdef.summary = summary
+// 	return hdef
+// }
+//
+// // Description func
+// func (hdef *HandlerDef) Description(description string) *HandlerDef {
+// 	hdef.description = description
+// 	return hdef
+// }
 
 func containsIgnoreCase(s []string, e string) bool {
 	for _, a := range s {
