@@ -24,9 +24,7 @@ type Group struct {
 type HandlerDef struct {
 	method      string
 	path        string
-	h1          interface{}
-	h2          interface{}
-	h3          interface{}
+	handlers    []interface{}
 	summary     string
 	description string
 	group       *Group
@@ -70,16 +68,22 @@ func (g *Group) Delete(path string) *HandlerDef {
 }
 
 // AddHandler func
-func (hdef *HandlerDef) AddHandler(handler interface{}) *HandlerDef {
-	if hdef.h1 == nil {
-		hdef.h1 = handler
-	} else if hdef.h2 == nil {
-		hdef.h2 = handler
-	} else if hdef.h3 == nil {
-		hdef.h3 = handler
-	} else {
-		panic("Only can support 3 handler at most")
-	}
+// func (hdef *HandlerDef) AddHandler(handler interface{}) *HandlerDef {
+// 	if hdef.h1 == nil {
+// 		hdef.h1 = handler
+// 	} else if hdef.h2 == nil {
+// 		hdef.h2 = handler
+// 	} else if hdef.h3 == nil {
+// 		hdef.h3 = handler
+// 	} else {
+// 		panic("Only can support 3 handler at most")
+// 	}
+// 	return hdef
+// }
+
+// AddHandlers func
+func (hdef *HandlerDef) AddHandlers(handlers ...interface{}) *HandlerDef {
+	hdef.handlers = handlers
 	return hdef
 }
 
@@ -100,11 +104,10 @@ func (hdef *HandlerDef) Mount() {
 	g := hdef.group
 	SwaggerTags[g.tag] = g.description
 	fullPath := g.prefix + hdef.path
-	MountSwaggerPath(&SwaggerPathDefine{Tag: g.tag, Method: hdef.method,
-		Summary: hdef.summary, Description: hdef.description,
-		Path: fullPath, Handler1: hdef.h1, Handler2: hdef.h2, Handler3: hdef.h3})
+	MountSwaggerPath(&SwaggerPathDefine{Tag: g.tag, Method: hdef.method, Path: fullPath,
+		Summary: hdef.summary, Description: hdef.description, Handlers: hdef.handlers})
 
-	echoHandler := BuildEchoHandler(fullPath, hdef.h1, hdef.h2, hdef.h3)
+	echoHandler := BuildEchoHandler(fullPath, hdef.handlers)
 	switch strings.ToUpper(hdef.method) {
 	case "GET":
 		g.echoGroup.Get(hdef.path, echoHandler)

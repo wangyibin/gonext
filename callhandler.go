@@ -10,8 +10,8 @@ import (
 )
 
 // BuildEchoHandler func
-func BuildEchoHandler(fullRequestPath string, h1 interface{}, h2 interface{}, h3 interface{}) echo.HandlerFunc {
-	inType, _, _ := validateChain(h1, h2, h3)
+func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.HandlerFunc {
+	inType, _, _ := validateChain(handlers)
 
 	return func(c *echo.Context) error {
 		var requestObj reflect.Value
@@ -23,26 +23,37 @@ func BuildEchoHandler(fullRequestPath string, h1 interface{}, h2 interface{}, h3
 		inParams[inType] = requestObj
 		inParams[reflect.TypeOf(c)] = reflect.ValueOf(c)
 
-		lastHandler := h1
-		out, err := callHanlder(h1, inParams)
-		if err != nil {
-			return err
-		}
-		if h2 != nil {
-			lastHandler = h2
-			out, err = callHanlder(h2, inParams)
+		var lastHandler interface{}
+		var out []reflect.Value
+		var err error
+		for _, h := range handlers {
+			lastHandler = h
+			out, err = callHanlder(h, inParams)
 			if err != nil {
 				return err
 			}
 		}
 
-		if h3 != nil {
-			lastHandler = h3
-			out, err = callHanlder(h3, inParams)
-			if err != nil {
-				return err
-			}
-		}
+		// lastHandler := h1
+		// out, err := callHanlder(h1, inParams)
+		// if err != nil {
+		// 	return err
+		// }
+		// if h2 != nil {
+		// 	lastHandler = h2
+		// 	out, err = callHanlder(h2, inParams)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// }
+		//
+		// if h3 != nil {
+		// 	lastHandler = h3
+		// 	out, err = callHanlder(h3, inParams)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// }
 		if len(out) > 1 {
 			return fmt.Errorf("return more then one data value is not supported: %s", runtime.FuncForPC(reflect.ValueOf(lastHandler).Pointer()).Name())
 		} else if len(out) == 0 {

@@ -28,9 +28,7 @@ type SwaggerPathDefine struct {
 	Summary     string
 	Description string
 	Path        string
-	Handler1    interface{}
-	Handler2    interface{}
-	Handler3    interface{}
+	Handlers    []interface{}
 }
 
 // MountSwaggerPath func
@@ -57,12 +55,12 @@ func BuildSwaggerPath(pathDefine *SwaggerPathDefine) (*SwaggerPath, error) {
 		resultPath = strings.Replace(resultPath, ":"+pname, "{"+pname+"}", -1)
 	}
 
-	inType, outType, err := validateChain(pathDefine.Handler1, pathDefine.Handler2, pathDefine.Handler3)
+	inType, outType, err := validateChain(pathDefine.Handlers)
 
 	if err != nil {
 		return nil, err
 	}
-	operationID := getOperationID(inType, pathDefine.Handler1, pathDefine.Handler2, pathDefine.Handler3)
+	operationID := getOperationID(inType, pathDefine.Handlers)
 
 	successResponse := map[string]interface{}{
 		"description": "successful operation",

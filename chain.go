@@ -10,13 +10,13 @@ import (
 // Handler type
 // type Handler interface{}
 
-func validateChain(h1 interface{}, h2 interface{}, h3 interface{}) (reflect.Type, reflect.Type, error) {
+func validateChain(handlers []interface{}) (reflect.Type, reflect.Type, error) {
 	var totalIns []reflect.Type
 	var totalOuts []reflect.Type
 
-	addTypes(h1, &totalIns, &totalOuts)
-	addTypes(h2, &totalIns, &totalOuts)
-	addTypes(h3, &totalIns, &totalOuts)
+	for _, h := range handlers {
+		addTypes(h, &totalIns, &totalOuts)
+	}
 
 	uniqueIns := findUniqueTypes(totalIns, totalOuts)
 	uniqueOuts := findUniqueTypes(totalOuts, totalIns)
@@ -54,18 +54,25 @@ func addTypes(handler interface{}, totalIns *[]reflect.Type, totalOuts *[]reflec
 		}
 	}
 }
-func getOperationID(inType reflect.Type, h1 interface{}, h2 interface{}, h3 interface{}) string {
-	var operationHandler interface{}
-	if isInTypeDefined(inType, h3) {
-		operationHandler = h3
-	} else if isInTypeDefined(inType, h2) {
-		operationHandler = h2
-	} else if isInTypeDefined(inType, h1) {
-		operationHandler = h1
-	} else {
-		panic("getOperationID error happend")
+func getOperationID(inType reflect.Type, handlers []interface{}) string {
+	// var operationHandler = handlers[len(handlers)-1]
+
+	var fullName string
+	for i := len(handlers) - 1; i >= 0; i-- {
+		if isInTypeDefined(inType, handlers[i]) {
+			fullName = runtime.FuncForPC(reflect.ValueOf(handlers[i]).Pointer()).Name()
+		}
 	}
-	fullName := runtime.FuncForPC(reflect.ValueOf(operationHandler).Pointer()).Name()
+	// if isInTypeDefined(inType, h3) {
+	// 	operationHandler = h3
+	// } else if isInTypeDefined(inType, h2) {
+	// 	operationHandler = h2
+	// } else if isInTypeDefined(inType, h1) {
+	// 	operationHandler = h1
+	// } else {
+	// 	panic("getOperationID error happend")
+	// }
+	// fullName := runtime.FuncForPC(reflect.ValueOf(operationHandler).Pointer()).Name()
 	arr := strings.Split(fullName, ".")
 	return arr[len(arr)-1]
 }
