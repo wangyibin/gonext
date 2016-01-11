@@ -239,6 +239,8 @@ func GoTypeToSwaggerType(typ reflect.Type) (string, string) {
 		return "array", format
 	case reflect.Struct:
 		return "object", "#/definitions/" + typ.Name()
+	case reflect.Ptr:
+		return GoTypeToSwaggerType(typ.Elem())
 	default:
 		return "string", "string"
 	}
