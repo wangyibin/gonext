@@ -7,7 +7,15 @@ import (
 	"runtime"
 
 	"github.com/labstack/echo"
+	"gopkg.in/go-playground/validator.v8"
 )
+
+var validate *validator.Validate
+
+func init() {
+	config := &validator.Config{TagName: "validate"}
+	validate = validator.New(config)
+}
 
 // BuildEchoHandler func
 func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.HandlerFunc {
@@ -15,9 +23,12 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 
 	return func(c *echo.Context) error {
 		var requestObj reflect.Value
-
+		var err error
 		if inType != nil {
-			requestObj = newType(fullRequestPath, inType, c)
+			requestObj, err = newType(fullRequestPath, inType, c)
+			if err != nil {
+				return err
+			}
 		}
 		inParams := make(map[reflect.Type]reflect.Value)
 		inParams[inType] = requestObj
@@ -25,7 +36,7 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 
 		var lastHandler interface{}
 		var out []reflect.Value
-		var err error
+
 		for _, h := range handlers {
 			lastHandler = h
 			out, err = callHanlder(h, inParams)
@@ -33,27 +44,6 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 				return err
 			}
 		}
-
-		// lastHandler := h1
-		// out, err := callHanlder(h1, inParams)
-		// if err != nil {
-		// 	return err
-		// }
-		// if h2 != nil {
-		// 	lastHandler = h2
-		// 	out, err = callHanlder(h2, inParams)
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// }
-		//
-		// if h3 != nil {
-		// 	lastHandler = h3
-		// 	out, err = callHanlder(h3, inParams)
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// }
 		if len(out) > 1 {
 			return fmt.Errorf("return more then one data value is not supported: %s", runtime.FuncForPC(reflect.ValueOf(lastHandler).Pointer()).Name())
 		} else if len(out) == 0 {
@@ -90,7 +80,7 @@ func callHanlder(handler interface{}, inParams map[reflect.Type]reflect.Value) (
 func isErrorType(v reflect.Value) bool {
 	return v.MethodByName("Error").IsValid()
 }
-func newType(fullRequestPath string, typ reflect.Type, c *echo.Context) reflect.Value {
+func newType(fullRequestPath string, typ reflect.Type, c *echo.Context) (reflect.Value, error) {
 	requestType := typ
 	if requestType.Kind() == reflect.Ptr {
 		requestType = requestType.Elem()
@@ -115,6 +105,7 @@ func newType(fullRequestPath string, typ reflect.Type, c *echo.Context) reflect.
 			} else {
 				value = c.Query(lowCamelStr(field.Name))
 			}
+
 			setValue(requestObj.Elem().FieldByName(field.Name), field.Name, value)
 		} else {
 			bodyType := field.Type
@@ -135,7 +126,8 @@ func newType(fullRequestPath string, typ reflect.Type, c *echo.Context) reflect.
 		}
 
 	}
-	return requestObj
+	err := validate.Struct(requestObj.Interface())
+	return requestObj, err
 }
 
 func setValue(field reflect.Value, name string, value string) error {

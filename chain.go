@@ -7,9 +7,6 @@ import (
 	"strings"
 )
 
-// Handler type
-// type Handler interface{}
-
 func validateChain(handlers []interface{}) (reflect.Type, reflect.Type, error) {
 	var totalIns []reflect.Type
 	var totalOuts []reflect.Type
@@ -55,24 +52,12 @@ func addTypes(handler interface{}, totalIns *[]reflect.Type, totalOuts *[]reflec
 	}
 }
 func getOperationID(inType reflect.Type, handlers []interface{}) string {
-	// var operationHandler = handlers[len(handlers)-1]
-
 	var fullName string
 	for i := len(handlers) - 1; i >= 0; i-- {
 		if isInTypeDefined(inType, handlers[i]) {
 			fullName = runtime.FuncForPC(reflect.ValueOf(handlers[i]).Pointer()).Name()
 		}
 	}
-	// if isInTypeDefined(inType, h3) {
-	// 	operationHandler = h3
-	// } else if isInTypeDefined(inType, h2) {
-	// 	operationHandler = h2
-	// } else if isInTypeDefined(inType, h1) {
-	// 	operationHandler = h1
-	// } else {
-	// 	panic("getOperationID error happend")
-	// }
-	// fullName := runtime.FuncForPC(reflect.ValueOf(operationHandler).Pointer()).Name()
 	arr := strings.Split(fullName, ".")
 	return arr[len(arr)-1]
 }
