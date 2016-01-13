@@ -30,7 +30,11 @@ func main() {
 		code := "000"
 		var msg interface{} = http.StatusText(httpStatus)
 
-		if validateError, ok := err.(validator.ValidationErrors); ok {
+    if bizError, ok := err.(*bizerrors.BizError); ok {
+			httpStatus = bizError.HttpStatus()
+			code = bizError.Code()
+			msg = bizError.Error()
+		} else if validateError, ok := err.(validator.ValidationErrors); ok {
 			httpStatus = http.StatusBadRequest
 			code = "900"
 			msg = validateError
