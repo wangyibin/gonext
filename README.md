@@ -7,6 +7,13 @@ func main() {
 
   // create router for apidoc
   router := apidoc.NewRouter(e)
+
+  // first clone https://github.com/swagger-api/swagger-ui.git
+  // copy dist folder to your project dir /public/swagger
+  // change doc url in public/swagger/index.html
+  // publish swagger docs
+	e.Static("/swagger", "public/swagger")
+
   controllers.bindPets(router)
 
   // bind the error handler for validation error
@@ -119,4 +126,14 @@ func bindPets(r *apidoc.Router) {
 	g.Get("/:id", getPet, "Get pet by ID", "bala bala bala....")
 }
 
+```
+
+change url in `public/swagger/index.html`
+```javascript
+// line 35 to line 39
+if (url && url.length > 1) {
+  url = decodeURIComponent(url[1]);
+} else {
+  url = "/api-docs";//"http://petstore.swagger.io/v2/swagger.json";
+}
 ```
