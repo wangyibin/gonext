@@ -1,4 +1,6 @@
 
+## Init `echo` environment
+
 ```go
 func main() {
   // Echo instance
@@ -12,7 +14,7 @@ func main() {
   // copy dist folder to your project dir /public/swagger
   // change doc url in public/swagger/index.html
   // publish swagger docs
-	e.Static("/swagger", "public/swagger")
+  e.Static("/swagger", "public/swagger")
 
   controllers.bindPets(router)
 
@@ -46,6 +48,9 @@ func main() {
 }
 ```
 
+## Define handler, expose Swagger API
+
+We can define the handler, request and response here. And swager apidoc will be automatically exposed
 ```go
 package controllers
 
@@ -128,7 +133,10 @@ func bindPets(r *apidoc.Router) {
 
 ```
 
+## Adjust some code in Swagger
+
 change url in `public/swagger/index.html`
+
 ```javascript
 // line 35 to line 39
 if (url && url.length > 1) {
