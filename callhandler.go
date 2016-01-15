@@ -19,20 +19,21 @@ func init() {
 
 // BuildEchoHandler func
 func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.HandlerFunc {
-	inType, _, _ := validateChain(handlers)
+	inTypes, _, _ := validateChain(handlers)
 
 	return func(c *echo.Context) error {
-		var requestObj reflect.Value
+		// var requestObj reflect.Value
 		var err error
-		if inType != nil {
-			requestObj, err = newType(fullRequestPath, inType, c)
+
+		inParams := make(map[reflect.Type]reflect.Value)
+		for _, inType := range inTypes {
+			requestObj, err := newType(fullRequestPath, inType, c)
 			if err != nil {
 				return err
 			}
+			inParams[inType] = requestObj
+			inParams[reflect.TypeOf(c)] = reflect.ValueOf(c)
 		}
-		inParams := make(map[reflect.Type]reflect.Value)
-		inParams[inType] = requestObj
-		inParams[reflect.TypeOf(c)] = reflect.ValueOf(c)
 
 		var lastHandler interface{}
 		var out []reflect.Value

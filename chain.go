@@ -7,7 +7,16 @@ import (
 	"strings"
 )
 
-func validateChain(handlers []interface{}) (reflect.Type, reflect.Type, error) {
+// func findInTypes(handlers []interface{}) []reflect.Type {
+// 	var totalIns []reflect.Type
+// 	var totalOuts []reflect.Type
+//
+// 	for _, h := range handlers {
+// 		addTypes(h, &totalIns, &totalOuts)
+// 	}
+// 	return findUniqueTypes(totalIns, totalOuts)
+// }
+func validateChain(handlers []interface{}) ([]reflect.Type, reflect.Type, error) {
 	var totalIns []reflect.Type
 	var totalOuts []reflect.Type
 
@@ -17,21 +26,21 @@ func validateChain(handlers []interface{}) (reflect.Type, reflect.Type, error) {
 
 	uniqueIns := findUniqueTypes(totalIns, totalOuts)
 	uniqueOuts := findUniqueTypes(totalOuts, totalIns)
-	if len(uniqueIns) > 1 {
-		return nil, nil, fmt.Errorf("more then one unique input type: %s", uniqueIns)
-	}
+	// if len(uniqueIns) > 1 {
+	// 	return nil, nil, fmt.Errorf("more then one unique input type: %s", uniqueIns)
+	// }
 	if len(uniqueOuts) > 1 {
 		return nil, nil, fmt.Errorf("more then one unique output type: %s", uniqueOuts)
 	}
-	var uniqueIn reflect.Type
+	// var uniqueIn reflect.Type
 	var uniqueOut reflect.Type
-	if len(uniqueIns) == 1 {
-		uniqueIn = uniqueIns[0]
-	}
+	// if len(uniqueIns) == 1 {
+	// 	uniqueIn = uniqueIns[0]
+	// }
 	if len(uniqueOuts) == 1 {
 		uniqueOut = uniqueOuts[0]
 	}
-	return uniqueIn, uniqueOut, nil
+	return uniqueIns, uniqueOut, nil
 }
 
 func addTypes(handler interface{}, totalIns *[]reflect.Type, totalOuts *[]reflect.Type) {
@@ -51,15 +60,17 @@ func addTypes(handler interface{}, totalIns *[]reflect.Type, totalOuts *[]reflec
 		}
 	}
 }
-func getOperationID(inType reflect.Type, handlers []interface{}) string {
-	var fullName string
-	for i := len(handlers) - 1; i >= 0; i-- {
-		if isInTypeDefined(inType, handlers[i]) {
-			fullName = runtime.FuncForPC(reflect.ValueOf(handlers[i]).Pointer()).Name()
-		}
-	}
+func getFuncName(handler interface{}) string {
+	fullName := runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name()
 	arr := strings.Split(fullName, ".")
 	return arr[len(arr)-1]
+}
+func getOperationID(handlers []interface{}) string {
+	var fullName string
+	for _, handler := range handlers {
+		fullName += "_" + getFuncName(handler)
+	}
+	return fullName
 }
 
 func isInTypeDefined(inType reflect.Type, handler interface{}) bool {

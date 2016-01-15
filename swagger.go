@@ -33,7 +33,7 @@ type SwaggerPathDefine struct {
 
 // MountSwaggerPath func
 func MountSwaggerPath(pathDefine *SwaggerPathDefine) error {
-	fmt.Printf("%s  %s\n", pathDefine.Method, pathDefine.Path)
+	fmt.Printf("\n\n%-8s%s\n", pathDefine.Method, pathDefine.Path)
 	newPath, err := BuildSwaggerPath(pathDefine)
 	if err != nil {
 		return err
@@ -55,12 +55,11 @@ func BuildSwaggerPath(pathDefine *SwaggerPathDefine) (*SwaggerPath, error) {
 		resultPath = strings.Replace(resultPath, ":"+pname, "{"+pname+"}", -1)
 	}
 
-	inType, outType, err := validateChain(pathDefine.Handlers)
+	inTypes, outType, err := validateChain(pathDefine.Handlers)
 
 	if err != nil {
 		return nil, err
 	}
-	operationID := getOperationID(inType, pathDefine.Handlers)
 
 	successResponse := map[string]interface{}{
 		"description": "successful operation",
@@ -71,6 +70,7 @@ func BuildSwaggerPath(pathDefine *SwaggerPathDefine) (*SwaggerPath, error) {
 			"schema":      SwaggerEntitySchemaRef(outType),
 		}
 	}
+	requestParam := BuildRequestParam(pathDefine.Path, inTypes)
 	json := map[string]interface{}{
 		strings.ToLower(pathDefine.Method): map[string]interface{}{
 			"tags":        []string{pathDefine.Tag},
@@ -78,8 +78,8 @@ func BuildSwaggerPath(pathDefine *SwaggerPathDefine) (*SwaggerPath, error) {
 			"description": pathDefine.Description,
 			"produces":    []string{"application/json"},
 			"consumes":    []string{"application/json"},
-			"operationId": operationID,
-			"parameters":  BuildRequestParam(pathDefine.Path, inType).ToSwaggerJSON(),
+			"operationId": getOperationID(pathDefine.Handlers),
+			"parameters":  requestParam.ToSwaggerJSON(),
 			"responses": map[string]interface{}{
 				"200": successResponse,
 				"500": map[string]interface{}{
@@ -89,17 +89,8 @@ func BuildSwaggerPath(pathDefine *SwaggerPathDefine) (*SwaggerPath, error) {
 		},
 	}
 
-	if inType != nil {
-		actualInType := inType
-		if inType.Kind() == reflect.Ptr {
-			actualInType = inType.Elem()
-		}
-		for i := 0; i < actualInType.NumField(); i++ {
-			typeField := actualInType.Field(i)
-			if strings.ToUpper(typeField.Name) == "BODY" {
-				MountSwaggerDefinition(typeField.Type)
-			}
-		}
+	if requestParam.RequestBody != nil {
+		MountSwaggerDefinition(requestParam.RequestBody)
 	}
 	if outType != nil {
 		MountSwaggerDefinition(outType)
