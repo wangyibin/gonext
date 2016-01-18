@@ -100,7 +100,7 @@ func BuildSwaggerPath(pathDefine *SwaggerPathDefine) (*SwaggerPath, error) {
 
 func propertiesOfEntity(bodyType reflect.Type) map[string]interface{} {
 	properties := make(map[string]interface{})
-	var requiredFields []string
+	requiredFields := []string{}
 	for i := 0; i < bodyType.NumField(); i++ {
 		field := bodyType.Field(i)
 		propertyName := lowCamelStr(field.Name)
