@@ -94,7 +94,7 @@ func newType(fullRequestPath string, typ reflect.Type, c *echo.Context) (reflect
 		field := requestType.Field(i)
 		isPathParam := false
 		for _, pname := range pnames {
-			if pname == lowCamelStr(field.Name) {
+			if lowCamelStr(pname) == lowCamelStr(field.Name) {
 				isPathParam = true
 				break
 			}
