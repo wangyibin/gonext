@@ -16,9 +16,10 @@ func getdoc(router *Router) echo.HandlerFunc {
 				"description": desc,
 			})
 		}
+
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"basePath": "/",
-			"host":     "localhost:3000",
+			"host":     c.Request().URL.Host,
 			"swagger":  "2.0",
 			"info": map[string]interface{}{
 				"title":          "Swagger Sample App",
