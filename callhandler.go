@@ -26,13 +26,13 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 		var err error
 
 		inParams := make(map[reflect.Type]reflect.Value)
+		inParams[reflect.TypeOf(c)] = reflect.ValueOf(c)
 		for _, inType := range inTypes {
 			requestObj, err := newType(fullRequestPath, inType, c)
 			if err != nil {
 				return err
 			}
 			inParams[inType] = requestObj
-			inParams[reflect.TypeOf(c)] = reflect.ValueOf(c)
 		}
 
 		var lastHandler interface{}
