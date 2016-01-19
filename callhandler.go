@@ -102,9 +102,9 @@ func newType(fullRequestPath string, typ reflect.Type, c *echo.Context) (reflect
 		if field.Name != "Body" {
 			var value string
 			if isPathParam {
-				value = c.Param(lowCamelStr(field.Name))
+				value = c.Param(field.Name)
 			} else {
-				value = c.Query(lowCamelStr(field.Name))
+				value = c.Query(field.Name)
 			}
 
 			setValue(requestObj.Elem().FieldByName(field.Name), field.Name, value)
