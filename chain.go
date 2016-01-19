@@ -1,21 +1,11 @@
 package apidoc
 
 import (
-	"fmt"
 	"reflect"
 	"runtime"
 	"strings"
 )
 
-// func findInTypes(handlers []interface{}) []reflect.Type {
-// 	var totalIns []reflect.Type
-// 	var totalOuts []reflect.Type
-//
-// 	for _, h := range handlers {
-// 		addTypes(h, &totalIns, &totalOuts)
-// 	}
-// 	return findUniqueTypes(totalIns, totalOuts)
-// }
 func validateChain(handlers []interface{}) ([]reflect.Type, reflect.Type, error) {
 	var totalIns []reflect.Type
 	var totalOuts []reflect.Type
@@ -26,19 +16,13 @@ func validateChain(handlers []interface{}) ([]reflect.Type, reflect.Type, error)
 
 	uniqueIns := findUniqueTypes(totalIns, totalOuts)
 	uniqueOuts := findUniqueTypes(totalOuts, totalIns)
-	// if len(uniqueIns) > 1 {
-	// 	return nil, nil, fmt.Errorf("more then one unique input type: %s", uniqueIns)
+	// if len(uniqueOuts) > 1 {
+	// 	return nil, nil, fmt.Errorf("more then one unique output type: %s", uniqueOuts)
 	// }
-	if len(uniqueOuts) > 1 {
-		return nil, nil, fmt.Errorf("more then one unique output type: %s", uniqueOuts)
-	}
-	// var uniqueIn reflect.Type
 	var uniqueOut reflect.Type
-	// if len(uniqueIns) == 1 {
-	// 	uniqueIn = uniqueIns[0]
-	// }
-	if len(uniqueOuts) == 1 {
-		uniqueOut = uniqueOuts[0]
+
+	if len(uniqueOuts) > 0 {
+		uniqueOut = uniqueOuts[len(uniqueOuts)-1]
 	}
 	return uniqueIns, uniqueOut, nil
 }

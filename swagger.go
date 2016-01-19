@@ -32,12 +32,10 @@ type SwaggerPathDefine struct {
 }
 
 // MountSwaggerPath func
-func MountSwaggerPath(pathDefine *SwaggerPathDefine) error {
+func MountSwaggerPath(pathDefine *SwaggerPathDefine) {
 	fmt.Printf("\n\n%-8s%s\n", pathDefine.Method, pathDefine.Path)
-	newPath, err := BuildSwaggerPath(pathDefine)
-	if err != nil {
-		return err
-	}
+	newPath := BuildSwaggerPath(pathDefine)
+
 	if exist, ok := SwaggerPaths[newPath.Path]; !ok {
 		SwaggerPaths[newPath.Path] = newPath.JSON
 	} else {
@@ -45,20 +43,19 @@ func MountSwaggerPath(pathDefine *SwaggerPathDefine) error {
 			exist.(map[string]interface{})[k] = v
 		}
 	}
-	return nil
 }
 
 // BuildSwaggerPath func
-func BuildSwaggerPath(pathDefine *SwaggerPathDefine) (*SwaggerPath, error) {
+func BuildSwaggerPath(pathDefine *SwaggerPathDefine) *SwaggerPath {
 	resultPath := pathDefine.Path
 	for _, pname := range PathNames(pathDefine.Path) {
-		resultPath = strings.Replace(resultPath, ":"+pname, "{"+pname+"}", -1)
+		resultPath = strings.ToLower(strings.Replace(resultPath, ":"+pname, "{"+pname+"}", -1))
 	}
 
 	inTypes, outType, err := validateChain(pathDefine.Handlers)
 
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	successResponse := map[string]interface{}{
@@ -95,7 +92,7 @@ func BuildSwaggerPath(pathDefine *SwaggerPathDefine) (*SwaggerPath, error) {
 	if outType != nil {
 		MountSwaggerDefinition(outType)
 	}
-	return &SwaggerPath{Path: resultPath, JSON: json}, nil
+	return &SwaggerPath{Path: resultPath, JSON: json}
 }
 
 func propertiesOfEntity(bodyType reflect.Type) map[string]interface{} {
