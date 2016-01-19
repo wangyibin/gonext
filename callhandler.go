@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"reflect"
 	"runtime"
+	"strings"
 
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v8"
@@ -104,7 +105,12 @@ func newType(fullRequestPath string, typ reflect.Type, c *echo.Context) (reflect
 			if isPathParam {
 				value = c.Param(field.Name)
 			} else {
-				value = c.Query(field.Name)
+				queries := c.Request().URL.Query()
+				for k := range c.Request().URL.Query() {
+					if strings.ToLower(k) == strings.ToLower(field.Name) {
+						value = queries.Get(k)
+					}
+				}
 			}
 
 			setValue(requestObj.Elem().FieldByName(field.Name), field.Name, value)
