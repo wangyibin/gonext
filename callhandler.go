@@ -123,8 +123,10 @@ func newType(fullRequestPath string, typ reflect.Type, c *echo.Context) (reflect
 				body = reflect.New(field.Type).Interface()
 			}
 
-			c.Bind(body)
-			fmt.Printf("%s\n", body)
+			if err := c.Bind(body); err != nil {
+				return requestObj, err
+			}
+
 			if bodyType.Kind() == reflect.Ptr {
 				requestObj.Elem().FieldByName("Body").Set(reflect.ValueOf(body))
 			} else {
