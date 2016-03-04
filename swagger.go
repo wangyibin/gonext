@@ -1,9 +1,10 @@
-package apidoc
+package gonext
 
 import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 )
 
 // SwaggerDefinitions cahce
@@ -107,6 +108,7 @@ func propertiesOfEntity(bodyType reflect.Type) map[string]interface{} {
 		} else {
 			requiredFields = append(requiredFields, propertyName)
 		}
+		//fmt.Printf("property[%s] fieldType[%v] kind[%v]\n", propertyName, fieldType, fieldType.Kind())
 		typ, format := GoTypeToSwaggerType(fieldType)
 
 		description := field.Tag.Get("desc")
@@ -201,9 +203,14 @@ func SwaggerEntitySchemaRef(inType reflect.Type) map[string]interface{} {
 	}
 }
 
+var TimeType = reflect.TypeOf((*time.Time)(nil)).Elem()
+
 // GoTypeToSwaggerType func
 // http://swagger.io/specification/#parameterObject
 func GoTypeToSwaggerType(typ reflect.Type) (string, string) {
+	if typ == TimeType {
+		return "string", "string"
+	}
 	switch typ.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uintptr:

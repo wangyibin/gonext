@@ -1,4 +1,4 @@
-package apidoc
+package gonext
 
 import (
 	"fmt"
@@ -46,6 +46,9 @@ func addPathAndQueryParams(path string, inType reflect.Type, pathParams *[]Param
 	requestType := inType
 	if requestType.Kind() == reflect.Ptr {
 		requestType = requestType.Elem()
+	}
+	if requestType.Kind() != reflect.Struct {
+		panic(fmt.Sprintf("request type must be Struct, but is %v\n", requestType.Kind()))
 	}
 	pnames := PathNames(path)
 	for i := 0; i < requestType.NumField(); i++ {
