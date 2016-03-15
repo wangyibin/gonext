@@ -1,5 +1,5 @@
 [target]
-path = shcifco
+path = github.com/wangyibin/gonext
 
 [deps]
 github.com/labstack/echo = tag:v1.3
