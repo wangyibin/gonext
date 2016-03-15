@@ -1,0 +1,8 @@
+[target]
+path = shcifco
+
+[deps]
+github.com/labstack/echo = tag:v1.3
+github.com/olekukonko/tablewriter = 
+gopkg.in/go-playground/validator.v8 = 
+
