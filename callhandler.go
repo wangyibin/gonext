@@ -9,6 +9,7 @@ import (
 
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v8"
+	"errors"
 )
 
 var validate *validator.Validate
@@ -25,7 +26,8 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 	return func(echoContext echo.Context) error {
 		// var requestObj reflect.Value
 		var err error
-		var c Context = &echoContextWrapper{c: echoContext}
+		var c Context
+		c = &echoContextWrapper{c: echoContext}
 		inParams := make(map[reflect.Type]reflect.Value)
 		inParams[reflect.TypeOf(c)] = reflect.ValueOf(c)
 		for _, inType := range inTypes {
@@ -68,7 +70,8 @@ func callHandler(handler interface{}, inParams map[reflect.Type]reflect.Value) (
 		if ok {
 			params = append(params, v)
 		} else {
-			return nil, fmt.Errorf("cannot find inParam of [%v]", handlerRef.Type().In(i))
+			msg := fmt.Sprintf("cannot find inParam of [%v]", handlerRef.Type().In(i))
+			return nil, errors.New(msg)
 		}
 
 	}
