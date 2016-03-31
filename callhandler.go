@@ -71,6 +71,7 @@ func callHandler(handler interface{}, inParams map[reflect.Type]reflect.Value) (
 			params = append(params, v)
 		} else {
 			msg := fmt.Sprintf("cannot find inParam of [%v]", handlerRef.Type().In(i))
+			fmt.Println(msg)
 			return nil, errors.New(msg)
 		}
 
