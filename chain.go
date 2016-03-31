@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"fmt"
 )
 
 func validateChain(handlers []interface{}) ([]reflect.Type, reflect.Type, error) {
@@ -34,7 +35,8 @@ func addTypes(handler interface{}, totalIns *[]reflect.Type, totalOuts *[]reflec
 	handlerType := reflect.TypeOf(handler)
 	// fmt.Printf("handler type >> %s\n", handlerType)
 	for i := 0; i < handlerType.NumIn(); i++ {
-		if handlerType.In(i).String() != "*echo.Context" {
+		fmt.Printf("handlerType.In(i).Name()=%s\n", handlerType.In(i).String())
+		if handlerType.In(i).String() != "Context" {
 			*totalIns = append(*totalIns, handlerType.In(i))
 		}
 	}
