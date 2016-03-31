@@ -39,9 +39,13 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 		var lastHandler interface{}
 		var out []reflect.Value
 
+		fmt.Printf("call %s\n", fullRequestPath)
+		for inParamKey := range inParams {
+			fmt.Printf("    in[%s]\n", inParamKey)
+		}
 		for _, h := range handlers {
 			lastHandler = h
-			out, err = callHanlder(h, inParams)
+			out, err = callHandler(h, inParams)
 			if err != nil {
 				return err
 			}
@@ -56,7 +60,7 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 	}
 }
 
-func callHanlder(handler interface{}, inParams map[reflect.Type]reflect.Value) ([]reflect.Value, error) {
+func callHandler(handler interface{}, inParams map[reflect.Type]reflect.Value) ([]reflect.Value, error) {
 	handlerRef := reflect.ValueOf(handler)
 	var params []reflect.Value
 	for i := 0; i < handlerRef.Type().NumIn(); i++ {
