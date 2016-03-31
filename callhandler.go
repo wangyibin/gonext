@@ -9,6 +9,7 @@ import (
 
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v8"
+	"errors"
 )
 
 var validate *validator.Validate
@@ -64,7 +65,13 @@ func callHandler(handler interface{}, inParams map[reflect.Type]reflect.Value) (
 	handlerRef := reflect.ValueOf(handler)
 	var params []reflect.Value
 	for i := 0; i < handlerRef.Type().NumIn(); i++ {
-		params = append(params, inParams[handlerRef.Type().In(i)])
+		v, ok := inParams[handlerRef.Type().In(i)]
+		if ok {
+			params = append(params, v)
+		} else {
+			return nil, fmt.Errorf("cannot find inParam of [%v]", handlerRef.Type().In(i))
+		}
+
 	}
 	values := handlerRef.Call(params)
 

@@ -36,7 +36,7 @@ func addTypes(handler interface{}, totalIns *[]reflect.Type, totalOuts *[]reflec
 	// fmt.Printf("handler type >> %s\n", handlerType)
 	for i := 0; i < handlerType.NumIn(); i++ {
 		if handlerType.In(i).String() != "gonext.Context" {
-			fmt.Printf("add to in handlerType.In(i).String()=%s\n", handlerType.In(i).String())
+			//fmt.Printf("add to in handlerType.In(i).String()=%s\n", handlerType.In(i).String())
 			*totalIns = append(*totalIns, handlerType.In(i))
 		}
 	}
