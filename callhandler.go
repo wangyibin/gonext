@@ -22,10 +22,10 @@ func init() {
 func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.HandlerFunc {
 	inTypes, _, _ := validateChain(handlers)
 
-	return func(c *echo.Context) error {
+	return func(echoContext *echo.Context) error {
 		// var requestObj reflect.Value
 		var err error
-
+		var c *Context = echoContext
 		inParams := make(map[reflect.Type]reflect.Value)
 		inParams[reflect.TypeOf(c)] = reflect.ValueOf(c)
 		for _, inType := range inTypes {
@@ -82,7 +82,7 @@ func callHanlder(handler interface{}, inParams map[reflect.Type]reflect.Value) (
 func isErrorType(v reflect.Value) bool {
 	return v.MethodByName("Error").IsValid()
 }
-func newType(fullRequestPath string, typ reflect.Type, c *echo.Context) (reflect.Value, error) {
+func newType(fullRequestPath string, typ reflect.Type, c *Context) (reflect.Value, error) {
 	requestType := typ
 	if requestType.Kind() == reflect.Ptr {
 		requestType = requestType.Elem()
