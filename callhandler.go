@@ -26,10 +26,9 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 	return func(echoContext echo.Context) error {
 		// var requestObj reflect.Value
 		var err error
-		var c Context
-		c = &echoContextWrapper{c: echoContext}
+		var c = &echoContextWrapper{c: echoContext}
 		inParams := make(map[reflect.Type]reflect.Value)
-		inParams[reflect.TypeOf(c)] = reflect.ValueOf(c)
+		inParams[reflect.TypeOf((*Context)(nil)).Elem()] = reflect.ValueOf(c)
 		for _, inType := range inTypes {
 			requestObj, err := newType(fullRequestPath, inType, c)
 			if err != nil {
