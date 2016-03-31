@@ -8,10 +8,7 @@ import (
 )
 
 // Router struct
-type (Router struct {
-	e *echo.Echo
-	// resources []*Resource
-}
+type (
 	Group struct {
 		tag         string
 		description string
@@ -20,13 +17,13 @@ type (Router struct {
 	}
 // Middleware defines an interface for middleware via `Handle(Handler) Handler`
 // function.
-	Middleware interface {
-		Handle(Handler) Handler
-	}
+//	Middleware interface {
+//		Handle(Handler) Handler
+//	}
 
 // MiddlewareFunc is an adapter to allow the use of `func(Handler) Handler` as
 // middleware.
-	MiddlewareFunc func(Handler) Handler
+//	MiddlewareFunc func(Handler) Handler
 
 // Handler defines an interface to server HTTP requests via `Handle(Context)`
 // function.
@@ -40,17 +37,9 @@ type (Router struct {
 )
 
 
-
-// NewRouter func
-func NewRouter(e *echo.Echo) *Router {
-	r := &Router{e: e}
-	e.Get("/api-docs", getdoc(r))
-	return r
-}
-
 // Group func
-func (g *Group) Group(tag string, description string, prefix string, m ...Middleware) *Group {
-	return &Group{tag: tag, description: description, prefix: g.prefix + prefix, echoGroup: g.echoGroup.Group(prefix, m...)}
+func (g *Group) Group(tag string, description string, prefix string) *Group {
+	return &Group{tag: tag, description: description, prefix: g.prefix + prefix, echoGroup: g.echoGroup.Group(prefix)}
 }
 
 // Get func

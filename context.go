@@ -112,7 +112,7 @@ type (
 		Error(err error)
 
 		// Handler implements `Handler` interface.
-		Handle(Context) error
+		//Handle(Context) error
 
 		// ServeContent sends static content from `io.Reader` and handles caching
 		// via `If-Modified-Since` request header. It automatically sets `Content-Type`
@@ -123,4 +123,6 @@ type (
 		// with `Echo#GetContext()` and `Echo#PutContext()`. See `Echo#ServeHTTP()`
 		Reset(engine.Request, engine.Response)
 	}
+
 )
+

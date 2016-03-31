@@ -20,6 +20,7 @@ var (
 // The one and only init to the whole package
 func init() {
 	DefaultEngine = new()
+	DefaultEngine.echo.Get("/api-docs", getdoc())
 }
 func new() (*Engine) {
 	e := echo.New()
@@ -39,7 +40,7 @@ func Run(addr string) {
 }
 
 // Group creates a new router group with prefix and optional group-level middleware.
-func Group(tag string, description string, prefix string, m ...Middleware) (*Group) {
+func NewGroup(tag string, description string, prefix string) (*Group) {
 	return &Group{tag: tag, description: description, prefix: prefix,
-		echoGroup: DefaultEngine.echo.Group(prefix, m...)}
+		echoGroup: DefaultEngine.echo.Group(prefix)}
 }

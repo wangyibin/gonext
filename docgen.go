@@ -6,9 +6,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-func getdoc(router *Router) echo.HandlerFunc {
-
-	return func(c *echo.Context) error {
+func getdoc() echo.HandlerFunc {
+	return func(c echo.Context) error {
 		var tags []map[string]string
 		for tag, desc := range SwaggerTags {
 			tags = append(tags, map[string]string{
@@ -19,7 +18,7 @@ func getdoc(router *Router) echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"basePath": "/",
-			"host":     c.Request().URL.Host,
+			"host":     c.Request().Host(),
 			"swagger":  "2.0",
 			"info": map[string]interface{}{
 				"title":          "Swagger Sample App",
@@ -41,5 +40,4 @@ func getdoc(router *Router) echo.HandlerFunc {
 			"tags":        tags,
 		})
 	}
-
 }
