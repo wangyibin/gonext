@@ -9,7 +9,6 @@ import (
 
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v8"
-	"errors"
 )
 
 var validate *validator.Validate
