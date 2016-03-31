@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
-	"fmt"
 )
 
 func validateChain(handlers []interface{}) ([]reflect.Type, reflect.Type, error) {
