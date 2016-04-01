@@ -4,11 +4,17 @@ import (
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
 	"github.com/labstack/echo/engine/standard"
+	"github.com/labstack/gommon/log"
 )
 
 type (
 	Engine struct {
 		echo *echo.Echo
+	}
+
+	HTTPError struct {
+		Code    int
+		Message string
 	}
 
 )
@@ -43,4 +49,20 @@ func Run(addr string) {
 func NewGroup(tag string, description string, prefix string) (*Group) {
 	return &Group{tag: tag, description: description, prefix: prefix,
 		echoGroup: DefaultEngine.echo.Group(prefix)}
+}
+
+func SetHTTPErrorHandler(errorHandler func(error, Context)) {
+	DefaultEngine.echo.SetHTTPErrorHandler(func (err error, eCtx echo.Context) {
+		if he, ok := err.(*echo.HTTPError); ok {
+			err = &HTTPError{Code: he.Code, Message: he.Message}
+		}
+		errorHandler(err, NewGonextContextFromEcho(eCtx))
+	})
+}
+// Error makes it compatible with `error` interface.
+func (e *HTTPError) Error() string {
+	return e.Message
+}
+func Logger() *log.Logger {
+	return DefaultEngine.echo.Logger()
 }

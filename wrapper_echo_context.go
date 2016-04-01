@@ -13,6 +13,10 @@ type echoContextWrapper struct {
 	c echo.Context
 }
 
+func NewGonextContextFromEcho(c echo.Context) Context {
+	return &echoContextWrapper{c}
+}
+
 func (w *echoContextWrapper) NetContext() netContext.Context {
 	return w.c.NetContext()
 }
