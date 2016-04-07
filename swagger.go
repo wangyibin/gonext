@@ -49,7 +49,7 @@ func MountSwaggerPath(pathDefine *SwaggerPathDefine) {
 // BuildSwaggerPath func
 func BuildSwaggerPath(pathDefine *SwaggerPathDefine) *SwaggerPath {
 	resultPath := pathDefine.Path
-	for _, pname := range PathNames(pathDefine.Path) {
+	for _, pname := range ParsePathNames(pathDefine.Path) {
 		resultPath = strings.ToLower(strings.Replace(resultPath, ":"+pname, "{"+pname+"}", -1))
 	}
 

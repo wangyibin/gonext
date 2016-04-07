@@ -58,21 +58,21 @@ func getOperationID(handlers []interface{}) string {
 	return fullName
 }
 
-func isInTypeDefined(inType reflect.Type, handler interface{}) bool {
-	if handler == nil {
-		return false
-	}
-	if inType == nil {
-		return true
-	}
-	handlerType := reflect.TypeOf(handler)
-	for i := 0; i < handlerType.NumIn(); i++ {
-		if handlerType.In(i).String() == inType.String() {
-			return true
-		}
-	}
-	return false
-}
+//func isInTypeDefined(inType reflect.Type, handler interface{}) bool {
+//	if handler == nil {
+//		return false
+//	}
+//	if inType == nil {
+//		return true
+//	}
+//	handlerType := reflect.TypeOf(handler)
+//	for i := 0; i < handlerType.NumIn(); i++ {
+//		if handlerType.In(i).String() == inType.String() {
+//			return true
+//		}
+//	}
+//	return false
+//}
 
 func findUniqueTypes(source []reflect.Type, compareWith []reflect.Type) []reflect.Type {
 	var uniques []reflect.Type

@@ -50,7 +50,7 @@ func addPathAndQueryParams(path string, inType reflect.Type, pathParams *[]Param
 	if requestType.Kind() != reflect.Struct {
 		panic(fmt.Sprintf("request type [%v] must be Struct, but is %v\n", requestType.Name(), requestType.Kind()))
 	}
-	pnames := PathNames(path)
+	pnames := ParsePathNames(path)
 	for i := 0; i < requestType.NumField(); i++ {
 		typeField := requestType.Field(i)
 

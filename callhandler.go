@@ -102,20 +102,14 @@ func newType(fullRequestPath string, typ reflect.Type, c Context) (reflect.Value
 	}
 	requestObj := reflect.New(requestType)
 
-	pnames := PathNames(fullRequestPath)
+	pnames := ParsePathNames(fullRequestPath)
 
 	for i := 0; i < requestType.NumField(); i++ {
 		field := requestType.Field(i)
-		isPathParam := false
-		for _, pname := range pnames {
-			if lowCamelStr(pname) == lowCamelStr(field.Name) {
-				isPathParam = true
-				break
-			}
-		}
+
 		if field.Name != "Body" {
 			var value string
-			if isPathParam {
+			if pnames.contains(field.Name) {
 				value = c.Param(field.Name)
 			} else {
 				queries := c.Request().URL().QueryParams()

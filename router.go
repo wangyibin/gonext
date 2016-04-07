@@ -123,25 +123,7 @@ func containsIgnoreCase(s []string, e string) bool {
 	return false
 }
 
-// PathNames func
-func PathNames(path string) []string {
-	pnames := []string{} // Param names
-	for i, l := 0, len(path); i < l; i++ {
-		if path[i] == ':' {
-			j := i + 1
 
-			for ; i < l && path[i] != '/'; i++ {
-			}
-
-			pnames = append(pnames, path[j:i])
-			path = path[:j] + path[i:]
-			i, l = j, len(path)
-		} else if path[i] == '*' {
-			pnames = append(pnames, "_*")
-		}
-	}
-	return pnames
-}
 
 func lowCamelStr(str string) string {
 	for _, word := range []string{"ID", "URL", "URI"} {
