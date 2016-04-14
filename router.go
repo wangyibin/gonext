@@ -96,23 +96,6 @@ func mount(method string, g *Group, path string, actions []interface{}) {
 	}
 }
 
-// // AddHandlers func
-// func (hdef *HandlerDef) AddHandlers(handlers ...interface{}) *HandlerDef {
-// 	hdef.handlers = handlers
-// 	return hdef
-// }
-//
-// // Summary func
-// func (hdef *HandlerDef) Summary(summary string) *HandlerDef {
-// 	hdef.summary = summary
-// 	return hdef
-// }
-//
-// // Description func
-// func (hdef *HandlerDef) Description(description string) *HandlerDef {
-// 	hdef.description = description
-// 	return hdef
-// }
 
 func containsIgnoreCase(s []string, e string) bool {
 	for _, a := range s {

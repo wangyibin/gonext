@@ -50,7 +50,7 @@ func MountSwaggerPath(pathDefine *SwaggerPathDefine) {
 func BuildSwaggerPath(pathDefine *SwaggerPathDefine) *SwaggerPath {
 	resultPath := pathDefine.Path
 	for _, pname := range ParsePathNames(pathDefine.Path) {
-		resultPath = strings.ToLower(strings.Replace(resultPath, ":"+pname, "{"+pname+"}", -1))
+		resultPath = strings.Replace(resultPath, ":"+pname, "{"+pname+"}", -1)
 	}
 
 	inTypes, outType, err := validateChain(pathDefine.Handlers)
