@@ -15,10 +15,10 @@ type (
 		netContext.Context
 
 		// NetContext returns `http://blog.golang.org/context.Context` interface.
-		NetContext() netContext.Context
+		Context() netContext.Context
 
 		// SetNetContext sets `http://blog.golang.org/context.Context` interface.
-		SetNetContext(netContext.Context)
+		SetContext(netContext.Context)
 
 		// Request returns `engine.Request` interface.
 		Request() engine.Request

@@ -4,7 +4,7 @@ import (
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
 	"github.com/labstack/echo/engine/standard"
-	"github.com/labstack/gommon/log"
+	"github.com/labstack/echo/log"
 )
 
 type (
@@ -63,6 +63,6 @@ func SetHTTPErrorHandler(errorHandler func(error, Context)) {
 func (e *HTTPError) Error() string {
 	return e.Message
 }
-func Logger() *log.Logger {
+func Logger() log.Logger {
 	return DefaultEngine.echo.Logger()
 }

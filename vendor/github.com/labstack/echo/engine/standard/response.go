@@ -7,26 +7,38 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/engine"
-	"github.com/labstack/gommon/log"
+	"github.com/labstack/echo/log"
 )
 
 type (
 	// Response implements `engine.Response`.
 	Response struct {
 		http.ResponseWriter
+		adapter   *responseAdapter
 		header    engine.Header
 		status    int
 		size      int64
 		committed bool
 		writer    io.Writer
-		logger    *log.Logger
+		logger    log.Logger
 	}
 
 	responseAdapter struct {
-		http.ResponseWriter
-		Response *Response
+		*Response
 	}
 )
+
+// NewResponse returns `Response` instance.
+func NewResponse(w http.ResponseWriter, l log.Logger) (r *Response) {
+	r = &Response{
+		ResponseWriter: w,
+		header:         &Header{Header: w.Header()},
+		writer:         w,
+		logger:         l,
+	}
+	r.adapter = &responseAdapter{Response: r}
+	return
+}
 
 // Header implements `engine.Response#Header` function.
 func (r *Response) Header() engine.Header {
@@ -46,9 +58,25 @@ func (r *Response) WriteHeader(code int) {
 
 // Write implements `engine.Response#Write` function.
 func (r *Response) Write(b []byte) (n int, err error) {
+	if !r.committed {
+		r.WriteHeader(http.StatusOK)
+	}
 	n, err = r.writer.Write(b)
 	r.size += int64(n)
 	return
+}
+
+// SetCookie implements `engine.Response#SetCookie` function.
+func (r *Response) SetCookie(c engine.Cookie) {
+	http.SetCookie(r.ResponseWriter, &http.Cookie{
+		Name:     c.Name(),
+		Value:    c.Value(),
+		Path:     c.Path(),
+		Domain:   c.Domain(),
+		Expires:  c.Expires(),
+		Secure:   c.Secure(),
+		HttpOnly: c.HTTPOnly(),
+	})
 }
 
 // Status implements `engine.Response#Status` function.
@@ -99,8 +127,9 @@ func (r *Response) CloseNotify() <-chan bool {
 	return r.ResponseWriter.(http.CloseNotifier).CloseNotify()
 }
 
-func (r *Response) reset(w http.ResponseWriter, h engine.Header) {
+func (r *Response) reset(w http.ResponseWriter, a *responseAdapter, h engine.Header) {
 	r.ResponseWriter = w
+	r.adapter = a
 	r.header = h
 	r.status = http.StatusOK
 	r.size = 0
@@ -108,22 +137,10 @@ func (r *Response) reset(w http.ResponseWriter, h engine.Header) {
 	r.writer = w
 }
 
-func (r *responseAdapter) WriteHeader(code int) {
-	r.Response.WriteHeader(code)
+func (r *responseAdapter) Header() http.Header {
+	return r.ResponseWriter.Header()
 }
 
-func (r *responseAdapter) Write(b []byte) (n int, err error) {
-	return r.Response.Write(b)
-}
-
-func (r *responseAdapter) Flush() {
-	r.ResponseWriter.(http.Flusher).Flush()
-}
-
-func (r *responseAdapter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	return r.ResponseWriter.(http.Hijacker).Hijack()
-}
-
-func (r *responseAdapter) CloseNotify() <-chan bool {
-	return r.ResponseWriter.(http.CloseNotifier).CloseNotify()
+func (r *responseAdapter) reset(res *Response) {
+	r.Response = res
 }

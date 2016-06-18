@@ -49,7 +49,7 @@ func (r *requestWrapperFromEcho) Header() engine.Header {
 // }
 
 // ContentLength implements `engine.Request#ContentLength` function.
-func (r *requestWrapperFromEcho) ContentLength() int {
+func (r *requestWrapperFromEcho) ContentLength() int64 {
 	return r.Request.ContentLength()
 }
 

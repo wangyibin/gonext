@@ -17,12 +17,12 @@ func NewGonextContextFromEcho(c echo.Context) Context {
 	return &echoContextWrapper{c}
 }
 
-func (w *echoContextWrapper) NetContext() netContext.Context {
-	return w.c.NetContext()
+func (w *echoContextWrapper) Context() netContext.Context {
+	return w.c.Context()
 }
 
-func (w *echoContextWrapper) SetNetContext(ctx netContext.Context) {
-	w.c.SetNetContext(ctx)
+func (w *echoContextWrapper) SetContext(ctx netContext.Context) {
+	w.c.SetContext(ctx)
 }
 
 func (w *echoContextWrapper) Deadline() (deadline time.Time, ok bool) {
