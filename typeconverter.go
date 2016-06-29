@@ -9,7 +9,13 @@ import (
 func toTargeType(targetType reflect.Type, value string) (reflect.Value, error) {
 	switch targetType.Kind() {
 	case reflect.Int:
-		i, err := strconv.Atoi(value)
+		i, err := strconv.ParseInt(value, 10, 64)
+		return reflect.ValueOf(int(i)), err
+	case reflect.Int32:
+		i, err := strconv.ParseInt(value, 10, 64)
+		return reflect.ValueOf(int32(i)), err
+	case reflect.Int64:
+		i, err := strconv.ParseInt(value, 10, 64)
 		return reflect.ValueOf(i), err
 	case reflect.Uint, reflect.Uint8, reflect.Uint16,
 		reflect.Uint32, reflect.Uint64, reflect.Uintptr:
