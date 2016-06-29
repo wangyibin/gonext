@@ -5,33 +5,33 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/dgrijalva/jwt-go",
-			"Comment": "v2.4.0-14-g668b546",
-			"Rev": "668b54691aeab72f51c3ab9e0f6262521f201af3"
+			"Comment": "v3.0.0-2-gf077707",
+			"Rev": "f0777076321ab64f6efc15a82d9d23b98539b943"
 		},
 		{
 			"ImportPath": "github.com/labstack/echo",
-			"Comment": "v2.0.2",
-			"Rev": "fbcdf70c52c155ae9aa58e72ee0532fa2f1cad2e"
+			"Comment": "v2.0.2-5-gd119b3b",
+			"Rev": "d119b3bbfad595bf2b8393de1ef62863a754adff"
 		},
 		{
 			"ImportPath": "github.com/labstack/echo/engine",
-			"Comment": "v2.0.2",
-			"Rev": "fbcdf70c52c155ae9aa58e72ee0532fa2f1cad2e"
+			"Comment": "v2.0.2-5-gd119b3b",
+			"Rev": "d119b3bbfad595bf2b8393de1ef62863a754adff"
 		},
 		{
 			"ImportPath": "github.com/labstack/echo/engine/standard",
-			"Comment": "v2.0.2",
-			"Rev": "fbcdf70c52c155ae9aa58e72ee0532fa2f1cad2e"
+			"Comment": "v2.0.2-5-gd119b3b",
+			"Rev": "d119b3bbfad595bf2b8393de1ef62863a754adff"
 		},
 		{
 			"ImportPath": "github.com/labstack/echo/log",
-			"Comment": "v2.0.2",
-			"Rev": "fbcdf70c52c155ae9aa58e72ee0532fa2f1cad2e"
+			"Comment": "v2.0.2-5-gd119b3b",
+			"Rev": "d119b3bbfad595bf2b8393de1ef62863a754adff"
 		},
 		{
 			"ImportPath": "github.com/labstack/echo/middleware",
-			"Comment": "v2.0.2",
-			"Rev": "fbcdf70c52c155ae9aa58e72ee0532fa2f1cad2e"
+			"Comment": "v2.0.2-5-gd119b3b",
+			"Rev": "d119b3bbfad595bf2b8393de1ef62863a754adff"
 		},
 		{
 			"ImportPath": "github.com/labstack/gommon/bytes",
@@ -72,16 +72,16 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "b797637b7aeeed133049c7281bfa31dcc9ca42d6"
+			"Rev": "ef2e00e88c5e0a3569f0bb9df697e9cbc6215fea"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",
-			"Rev": "f64b50fbea64174967a8882830d621a18ee1548e"
+			"Rev": "62bee037599929a6e9146f29d10dd5208c43507d"
 		},
 		{
 			"ImportPath": "gopkg.in/go-playground/validator.v8",
-			"Comment": "v8.17.1",
-			"Rev": "014792cf3e266caff1e916876be12282b33059e0"
+			"Comment": "v8.17.2",
+			"Rev": "25f1823069d853eccffbde025dca1812fa09c14b"
 		}
 	]
 }
