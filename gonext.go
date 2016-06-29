@@ -67,5 +67,9 @@ func Logger() log.Logger {
 	return DefaultEngine.echo.Logger()
 }
 func NewHTTPError(code int, msg ...string) *HTTPError {
-	return echo.NewHTTPError(code, msg...)
+	e := echo.NewHTTPError(code, msg...)
+	return &HTTPError{
+		Code: e.Code,
+		Message: e.Message,
+	}
 }
