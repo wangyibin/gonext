@@ -10,7 +10,6 @@ import (
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v8"
 	"errors"
-	"golang.org/x/tools/go/types/typeutil"
 	"github.com/wangyibin/gonext/typeconv"
 )
 
