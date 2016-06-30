@@ -21,7 +21,7 @@ func extractBaseTypeValue(targetType reflect.Type, value string) (interface{}, e
 	switch targetType.Kind() {
 	case reflect.Int:
 		i, err := strconv.ParseInt(value, 10, 64)
-		int(i), err
+		return int(i), err
 	case reflect.Int8:
 		i, err := strconv.ParseInt(value, 10, 8)
 		return int8(i), err
