@@ -10,6 +10,8 @@ import (
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v8"
 	"errors"
+	"golang.org/x/tools/go/types/typeutil"
+	"github.com/wangyibin/gonext/typeconv"
 )
 
 var validate *validator.Validate
@@ -147,7 +149,7 @@ func newType(fullRequestPath string, typ reflect.Type, c Context) (reflect.Value
 }
 
 func setValue(field reflect.Value, name string, value string) error {
-	v, err := toTargeType(field.Type(), value)
+	v, err := typeconv.ToTargetType(field.Type(), value)
 	fmt.Printf("setValue [%s] -> %s(%v)\n", name, v, v.Type())
 	field.Set(v)
 
