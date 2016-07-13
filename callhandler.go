@@ -148,9 +148,13 @@ func newType(fullRequestPath string, typ reflect.Type, c Context) (reflect.Value
 }
 
 func setValue(field reflect.Value, name string, value string) error {
-	v, err := typeconv.ToTargetType(field.Type(), value)
-	fmt.Printf("setValue [%s] -> %s(%v)\n", name, v, v.Type())
-	field.Set(v)
-
-	return err
+	fmt.Printf("setValue [%s] -> %s\n", name, value)
+	return typeconv.SetValue(field, value)
+	//switch field.Type().Kind() {
+	//case reflect.Ptr: field.SetPointer(v)
+	//default: field.Set(v)
+	//}
+	//field.Set(v)
+	//
+	//return err
 }

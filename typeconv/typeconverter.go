@@ -6,14 +6,21 @@ import (
 	"strconv"
 )
 
-func ToTargetType(targetType reflect.Type, value string) (reflect.Value, error) {
+func SetValue(field reflect.Value, value string) error {
+	targetType := field.Type()
 	switch targetType.Kind() {
 	case reflect.Ptr:
-		v, err := ToTargetType(targetType.Elem(), value)
-		return reflect.ValueOf(&v), err
+		return SetValue(field.Elem(), value)
+		//v, err := ToTargetType(targetType.Elem(), value)
+		//return v.Pointer(), err
 	default:
 		v, err := extractBaseTypeValue(targetType, value)
-		return reflect.ValueOf(v), err
+		if err != nil {
+			return err
+		}
+		field.Set(reflect.ValueOf(v))
+		return nil
+		//return reflect.ValueOf(v), err
 	}
 }
 
