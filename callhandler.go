@@ -5,12 +5,11 @@ import (
 	"net/http"
 	"reflect"
 	"runtime"
-	"strings"
-
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v8"
 	"errors"
-	"github.com/wangyibin/gonext/typeconv"
+	"github.com/gorilla/schema"
+	"time"
 )
 
 var validate *validator.Validate
@@ -26,6 +25,14 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 
 	return func(echoContext echo.Context) error {
 		// var requestObj reflect.Value
+		StartAt := time.Now()
+
+		var logError = func (err error) error {
+			fmt.Printf("%4s | %3d [%.3fs] | %s\n", echoContext.Request().Method(),
+				echoContext.Response().Status(), time.Now().Sub(StartAt).Seconds(),
+				fullRequestPath)
+			return err
+		}
 		var err error
 		var c = NewGonextContextFromEcho(echoContext)
 		inParams := make(map[reflect.Type]reflect.Value)
@@ -33,7 +40,7 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 		for _, inType := range inTypes {
 			requestObj, err := newType(fullRequestPath, inType, c)
 			if err != nil {
-				return err
+				return logError(err)
 			}
 			inParams[inType] = requestObj
 		}
@@ -41,23 +48,23 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 		var lastHandler interface{}
 		var out []reflect.Value
 
-		fmt.Printf("call %s\n", fullRequestPath)
-		for inParamKey := range inParams {
-			fmt.Printf("    in[%s]\n", inParamKey)
-		}
+		//fmt.Printf("call %s\n", fullRequestPath)
+		//for inParamKey := range inParams {
+		//	fmt.Printf("    in[%s]\n", inParamKey)
+		//}
 		for _, h := range handlers {
 			lastHandler = h
 			out, err = callHandler(h, inParams)
 			if err != nil {
-				return err
+				return logError(err)
 			}
 		}
 		if len(out) > 1 {
-			return fmt.Errorf("return more then one data value is not supported: %s", runtime.FuncForPC(reflect.ValueOf(lastHandler).Pointer()).Name())
+			return logError(fmt.Errorf("return more then one data value is not supported: %s", runtime.FuncForPC(reflect.ValueOf(lastHandler).Pointer()).Name()))
 		} else if len(out) == 0 {
-			return c.NoContent(http.StatusOK)
+			return logError(c.NoContent(http.StatusOK))
 		} else {
-			return c.JSON(http.StatusOK, out[0].Interface())
+			return logError(c.JSON(http.StatusOK, out[0].Interface()))
 		}
 	}
 }
@@ -103,26 +110,20 @@ func newType(fullRequestPath string, typ reflect.Type, c Context) (reflect.Value
 	}
 	requestObj := reflect.New(requestType)
 
-	pnames := ParsePathNames(fullRequestPath)
+	pathAndQueryParams := c.QueryParams()
 
+	for _, name := range c.ParamNames() {
+		pathAndQueryParams[name] = []string{c.Param(name)}
+	}
+	decoder := schema.NewDecoder()
+	err := decoder.Decode(requestObj.Interface(), pathAndQueryParams)
+	if err != nil {
+		return requestObj, err
+	}
 	for i := 0; i < requestType.NumField(); i++ {
 		field := requestType.Field(i)
 
-		if field.Name != "Body" {
-			var value string
-			if pnames.contains(field.Name) {
-				value = c.Param(field.Name)
-			} else {
-				queries := c.Request().URL().QueryParams()
-				for k := range queries {
-					if strings.ToLower(k) == strings.ToLower(field.Name) {
-						value = c.Request().URL().QueryParam(k)
-					}
-				}
-			}
-
-			setValue(requestObj.Elem().FieldByName(field.Name), field.Name, value)
-		} else {
+		if field.Name == "Body" {
 			bodyType := field.Type
 			var body interface{}
 			if bodyType.Kind() == reflect.Ptr {
@@ -141,16 +142,15 @@ func newType(fullRequestPath string, typ reflect.Type, c Context) (reflect.Value
 				requestObj.Elem().FieldByName("Body").Set(reflect.ValueOf(body).Elem())
 			}
 		}
-
 	}
-	err := validate.Struct(requestObj.Interface())
+	err = validate.Struct(requestObj.Interface())
 	return requestObj, err
 }
 
-func setValue(field reflect.Value, name string, value string) error {
-	v, err := typeconv.ToTargetType(field.Type(), value)
-	fmt.Printf("setValue [%s] -> %s(%v)\n", name, v, v.Type())
-	field.Set(v)
-
-	return err
-}
+//func setValue(field reflect.Value, name string, value string) error {
+//	v, err := typeconv.ToTargetType(field.Type(), value)
+//	fmt.Printf("setValue [%s] -> %s(%v)\n", name, v, v.Type())
+//	field.Set(v)
+//
+//	return err
+//}

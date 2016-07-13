@@ -26,14 +26,25 @@ func (r *requestWrapperFromEcho) Host() string {
 	return r.Request.Host()
 }
 
+
+func (r *requestWrapperFromEcho) SetURI(arg string) {
+	r.Request.SetURI(arg)
+}
+
 // URL implements `engine.Request#URL` function.
 func (r *requestWrapperFromEcho) URL() engine.URL {
 	return r.Request.URL()
 }
 
+
+
 // Header implements `engine.Request#URL` function.
 func (r *requestWrapperFromEcho) Header() engine.Header {
 	return &headerWrapperFromEcho{r.Request.Header()}
+}
+
+func (r *requestWrapperFromEcho) Referer() string {
+	return r.Request.Referer()
 }
 
 // func Proto() string {
@@ -101,4 +112,16 @@ func (r *requestWrapperFromEcho) FormFile(name string) (*multipart.FileHeader, e
 // MultipartForm implements `engine.Request#MultipartForm` function.
 func (r *requestWrapperFromEcho) MultipartForm() (*multipart.Form, error) {
 	return r.Request.MultipartForm()
+}
+
+func (r *requestWrapperFromEcho) Cookie(key string) (engine.Cookie, error) {
+	return r.Request.Cookie(key)
+}
+
+func (r *requestWrapperFromEcho) Cookies() []engine.Cookie {
+	var cookies []engine.Cookie
+	for _, c := range r.Request.Cookies() {
+		cookies = append(cookies, c)
+	}
+	return cookies
 }

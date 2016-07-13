@@ -9,6 +9,10 @@
 			"Rev": "f0777076321ab64f6efc15a82d9d23b98539b943"
 		},
 		{
+			"ImportPath": "github.com/gorilla/schema",
+			"Rev": "d68043406bea8bd90f7b38e9c54fab18d903ea25"
+		},
+		{
 			"ImportPath": "github.com/labstack/echo",
 			"Comment": "v2.0.2-5-gd119b3b",
 			"Rev": "d119b3bbfad595bf2b8393de1ef62863a754adff"

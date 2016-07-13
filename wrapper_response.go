@@ -25,6 +25,9 @@ func (r *responseWrapperFromEcho) Write(b []byte) (int, error) {
 	return r.Response.Write(b)
 }
 
+func (r *responseWrapperFromEcho) SetCookie(c engine.Cookie) {
+	r.Response.SetCookie(c)
+}
 // Status implements `engine.Response#Status` function.
 func (r *responseWrapperFromEcho) Status() int {
 	return r.Response.Status()
