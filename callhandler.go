@@ -116,6 +116,7 @@ func newType(fullRequestPath string, typ reflect.Type, c Context) (reflect.Value
 		pathAndQueryParams[name] = []string{c.Param(name)}
 	}
 	decoder := schema.NewDecoder()
+	decoder.IgnoreUnknownKeys(true)
 	err := decoder.Decode(requestObj.Interface(), pathAndQueryParams)
 	if err != nil {
 		return requestObj, err
