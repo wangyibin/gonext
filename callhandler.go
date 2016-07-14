@@ -28,7 +28,7 @@ func BuildEchoHandler(fullRequestPath string, handlers []interface{}) echo.Handl
 		StartAt := time.Now()
 
 		var logError = func (err error) error {
-			fmt.Printf("%4s | %3d [%.3fs] | %s\n", echoContext.Request().Method(),
+			fmt.Printf("%6s | %3d [%.3fs] | %s\n", echoContext.Request().Method(),
 				echoContext.Response().Status(), time.Now().Sub(StartAt).Seconds(),
 				fullRequestPath)
 			return err
